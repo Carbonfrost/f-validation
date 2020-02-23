@@ -1,7 +1,5 @@
 //
-// - DefineValidatorAttribute.cs -
-//
-// Copyright 2013 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2013, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,17 +24,17 @@ namespace Carbonfrost.Commons.Validation {
 
         public Type ValidatorType {
             get {
-                return this.AdapterType;
+                return AdapterType;
             }
         }
 
         public DefineValidatorAttribute(Type adapteeType, string validatorType)
-            : base(AdapterRole.Validator, adapteeType, validatorType)
+            : base(adapteeType, validatorType)
         {
         }
 
         public DefineValidatorAttribute(Type adapteeType, Type validatorType)
-            : base(AdapterRole.Validator, adapteeType, validatorType)
+            : base(adapteeType, validatorType)
         {
         }
     }

@@ -10,9 +10,10 @@
       A framework for validation
     </Description>
     <PackageProjectUrl>https://github.com/Carbonfrost/f-validation</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Carbonfrost/f-validation</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Carbonfrost.Commons.Core" Version="0.2.1" />
+    <PackageReference Include="Carbonfrost.Commons.Core" Version="0.3.0" />
   </ItemGroup>
 </Project>
