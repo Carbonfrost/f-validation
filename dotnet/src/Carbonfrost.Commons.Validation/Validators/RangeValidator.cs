@@ -25,18 +25,15 @@ namespace Carbonfrost.Commons.Validation.Validators {
 
         public object MinValue { get; set; }
         public object MaxValue { get; set; }
-        public bool UpperExclusive { get; set; }
-        public bool LowerExclusive { get; set; }
+        public bool MaxExclusive { get; set; }
+        public bool MinExclusive { get; set; }
 
         public RangeValidator() {}
 
         public RangeValidator(object minValue, object maxValue) {
-            this.MinValue = minValue;
-            this.MaxValue = maxValue;
+            MinValue = minValue;
+            MaxValue = maxValue;
         }
-
-        public override string Name {
-            get { return ValidatorNames.Range; } }
 
         protected virtual IComparer GetComparer() {
             return Comparer.Default;
@@ -48,7 +45,7 @@ namespace Carbonfrost.Commons.Validation.Validators {
             if (MinValue != null) {
                 switch (Math.Sign(c.Compare(MinValue, value))) {
                     case 0:
-                        if (LowerExclusive) {
+                        if (MinExclusive) {
                             return false;
                         }
                         break;
@@ -66,7 +63,7 @@ namespace Carbonfrost.Commons.Validation.Validators {
             if (MaxValue != null) {
                 switch (Math.Sign(c.Compare(value, MaxValue))) {
                     case 0:
-                        if (UpperExclusive) {
+                        if (MaxExclusive) {
                             return false;
                         }
                         break;

@@ -1,6 +1,4 @@
-//
-// - EachItemValidatorAdapter.cs -
-//
+﻿//
 // Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -21,28 +19,24 @@ using System.Collections;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
-    internal sealed class EachItemValidatorAdapter : Validator {
-        // TODO This should be a validator adapter derived class
+    internal sealed class EachKeyValuePairValidatorAdapter : Validator {
         private readonly Validator validator;
 
-        public EachItemValidatorAdapter(Validator validator) {
+        public EachKeyValuePairValidatorAdapter(Validator validator) {
             this.validator = validator;
         }
 
-        public override bool Validate(object target, ValidationErrors targetErrors) {
-            if (target == null)
-                return validator.Validate(target, targetErrors);
-            else {
-                IEnumerable e = (IEnumerable) target;
-                foreach (object o in e)
-                    validator.Validate(target, targetErrors);
-
-                return true;
+        public override ValidationErrors Validate(object target) {
+            if (target == null) {
+                return ValidationErrors.None;
             }
-        }
 
-        // TODO Maybe a better tag name here?
-	    public override string Name {
-	        get { return validator.Name; } }
+            IEnumerable e = (IEnumerable) target;
+            foreach (object o in e) {
+                validator.Validate(target);
+            }
+
+            return ValidationErrors.None;
+        }
     }
 }

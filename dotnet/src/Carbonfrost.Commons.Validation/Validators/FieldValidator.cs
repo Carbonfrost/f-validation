@@ -29,14 +29,15 @@ namespace Carbonfrost.Commons.Validation.Validators {
         public FieldValidator(FieldInfo field, Validator baseValidator)
             : base(field, baseValidator) {}
 
-        protected override object GetValueForValidation(object target, out string accessFailureMessage) {
+        protected override object GetValueForValidation(object target) {
             try {
-                accessFailureMessage = null;
-                return this.Field.GetValue(target);
+                return Field.GetValue(target);
 
-            } catch (Exception) {
-                accessFailureMessage = SR.FieldValueNotAccessible(Field.Name);
-                return null;
+            } catch (Exception ex) {
+                throw new ValidationException(
+                    SR.FieldValueNotAccessible(Field.Name),
+                    ex
+                );
             }
         }
     }

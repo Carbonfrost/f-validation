@@ -1,5 +1,5 @@
 //
-// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,251 +17,165 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Validation.Resources;
 
 namespace Carbonfrost.Commons.Validation {
 
-    public class ValidationErrors : IDictionary<string, ValidationError>, IList<ValidationError>, ICollection {
+    public class ValidationErrors : IReadOnlyDictionary<string, ValidationError>, IReadOnlyList<ValidationError>, ICollection {
 
-        private readonly IList<ValidationError> list = new List<ValidationError>();
-        private IDictionary<string, ValidationError> dict;
+        private readonly IList<ValidationError> _items;
+        private IDictionary<string, ValidationError> _dict;
 
-        // Properties.
-        private IDictionary<string, ValidationError> Dictionary {
+        public static readonly ValidationErrors Empty
+            = new ValidationErrors(Enumerable.Empty<ValidationError>());
+
+        public static readonly ValidationErrors None = Empty;
+
+        public bool IsEmpty {
             get {
-                if (dict == null) {
-                    dict = new Dictionary<string, ValidationError>();
-                    foreach (ValidationError vr in list)
-                        dict.Add(vr.Key, vr);
-                }
-                return dict;
+                return 0 == Count;
             }
         }
 
-        public bool IsValid {
+        private IList<ValidationError> Items {
             get {
-                return 0 == this.Count;
+                return _items;
             }
         }
 
-        // Constructors
-        public ValidationErrors() {
+        public ValidationErrors(ValidationError item) {
+            if (item == null) {
+                throw new ArgumentNullException(nameof(item));
+            }
+            _items = new List<ValidationError> { item };
+        }
+
+        public ValidationErrors(params ValidationError[] items)
+            : this((IEnumerable<ValidationError>) items) {
+        }
+
+        public ValidationErrors(IEnumerable<ValidationError> items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+            _items = new List<ValidationError>(items);
+        }
+
+        internal static ValidationErrors Flatten(IEnumerable<ValidationErrors> result) {
+            return new ValidationErrors(
+                result.SelectMany(vr => (IEnumerable<ValidationError>) vr)
+            );
         }
 
         public void Valid() {
-            if (!IsValid) {
-                throw Exception;
+            if (IsEmpty) {
+                return;
             }
+
+            throw ToException();
+        }
+
+        private IDictionary<string, ValidationError> Dictionary {
+            get {
+                if (_dict == null) {
+                    _dict = _items.ToDictionary(vr => vr.Key, vr => vr);
+                }
+                return _dict;
+            }
+        }
+
+        public ValidationException ToException() {
+            if (Items.Count == 0) {
+                return null;
+            }
+            StringBuilder message = new StringBuilder(SR.ValidationErrorsOccurred());
+            // TODO NLS implementation
+            foreach (var t in Items.GroupBy(u => u.Key)) {
+                message.AppendLine();
+                message.Append(t.Key);
+                message.Append(": ");
+                foreach (var v in t) {
+                    message.Append(v.Message);
+                    message.Append(" ");
+                }
+            }
+            return new ValidationException(message.ToString());
         }
 
         public override string ToString() {
-            return string.Join(Environment.NewLine, this.list);
+            return string.Join(Environment.NewLine, _items);
         }
 
-        // `IList<ValidationResult>' implementation
-        public ValidationError this[int index] {
-            get { return list[index]; }
-            set { throw ValidationFailure.ValidationResultsCannotRemove(); }
-        }
-
-        public int IndexOf(ValidationError item) {
-            return list.IndexOf(item);
-        }
-
-        void IList<ValidationError>.Insert(int index, ValidationError item) {
-            throw Failure.ReadOnlyCollection();
-        }
-
-        void IList<ValidationError>.RemoveAt(int index) {
-            throw Failure.ReadOnlyCollection();
-        }
-
-        // `ICollection<ValidationResult>' overrides.
-
-        public void Add(ValidationError item) {
-            this.list.Add(item);
-            if (dict != null)
-                dict.Add(item.Key, item);
-        }
-
-        void ICollection<ValidationError>.Clear() {
-            throw ValidationFailure.ValidationResultsCannotRemove();
-        }
-
-        public bool Contains(ValidationError item) {
-            if (dict != null)
-                return dict.ContainsKey(item.Key);
-            return this.list.Contains(item);
-        }
-
-        public void CopyTo(ValidationError[] array, int arrayIndex) {
-            list.CopyTo(array, arrayIndex);
-        }
-
-        bool ICollection<ValidationError>.Remove(ValidationError item) {
-            throw ValidationFailure.ValidationResultsCannotRemove();
-        }
-
-        public IEnumerator<ValidationError> GetEnumerator() {
-            return this.list.GetEnumerator();
-        }
-
-        // `ICollection' overrides.
-        object ICollection.SyncRoot { get { return null; } }
-        bool ICollection.IsSynchronized { get { return false; } }
-        void ICollection.CopyTo(Array array, int index) { ((ICollection) list).CopyTo(array, index); }
-        IEnumerator IEnumerable.GetEnumerator() { return GetEnumerator(); }
-
-        // 'IDictionary' implementation.
         public ValidationError this[string key] {
             get {
-                if (this.dict != null || this.list.Count > 8)
-                    return Dictionary[key];
-                foreach (ValidationError vr in list) {
-                    if (_CompareKeys(vr.Key, key)) return vr;
-                }
-                throw new KeyNotFoundException();
-            }
-            set {
-                throw ValidationFailure.ValidationResultsCannotRemove();
+                return Dictionary[key];
             }
         }
 
-        ICollection<string> IDictionary<string, ValidationError>.Keys { get { return this.Dictionary.Keys; } }
-        ICollection<ValidationError> IDictionary<string, ValidationError>.Values { get { return this.list; } }
+        public ValidationError this[int index] {
+            get {
+                return _items[index];
+            }
+        }
 
-        public int Count { get { return list.Count; } }
-        bool ICollection<ValidationError>.IsReadOnly { get { return false; } }
-        bool ICollection<KeyValuePair<string, ValidationError>>.IsReadOnly { get { return false; } }
+        public IEnumerable<string> Keys {
+            get {
+                return Dictionary.Keys;
+            }
+        }
 
-        bool IDictionary<string, ValidationError>.ContainsKey(string key) {
+        public IEnumerable<ValidationError> Values {
+            get {
+                return _items;
+            }
+        }
+
+        public int Count {
+            get {
+                return _items.Count;
+            }
+        }
+
+        bool ICollection.IsSynchronized {
+            get {
+                return false;
+            }
+        }
+
+        object ICollection.SyncRoot {
+            get {
+                return null;
+            }
+        }
+
+        public bool ContainsKey(string key) {
             return Dictionary.ContainsKey(key);
         }
 
-        void IDictionary<string, ValidationError>.Add(string key, ValidationError value) {
-            throw new NotSupportedException();
+        void ICollection.CopyTo(Array array, int index) {
+            ((ICollection) _items).CopyTo(array, index);
         }
 
-        bool IDictionary<string, ValidationError>.Remove(string key) {
-            throw ValidationFailure.ValidationResultsCannotRemove();
-        }
-
-        bool IDictionary<string, ValidationError>.TryGetValue(string key, out ValidationError value) {
-            return this.Dictionary.TryGetValue(key, out value);
-        }
-        void ICollection<KeyValuePair<string, ValidationError>>.Add(KeyValuePair<string, ValidationError> item) {
-            if (_CompareKeys(item.Key, item.Value.Key))
-                Add(item.Value);
-        }
-
-        void ICollection<KeyValuePair<string, ValidationError>>.Clear() {
-            throw ValidationFailure.ValidationResultsCannotRemove();
-        }
-
-        bool ICollection<KeyValuePair<string, ValidationError>>.Contains(KeyValuePair<string, ValidationError> item) {
-            return Dictionary.Contains(item);
-        }
-
-        void ICollection<KeyValuePair<string, ValidationError>>.CopyTo(KeyValuePair<string, ValidationError>[] array, int arrayIndex) {
-            this.Dictionary.CopyTo(array, arrayIndex);
-        }
-
-        bool ICollection<KeyValuePair<string, ValidationError>>.Remove(KeyValuePair<string, ValidationError> item) {
-            throw ValidationFailure.ValidationResultsCannotRemove();
+        public void CopyTo(ValidationError[] array, int arrayIndex) {
+            _items.CopyTo(array, arrayIndex);
         }
 
         IEnumerator<KeyValuePair<string, ValidationError>> IEnumerable<KeyValuePair<string, ValidationError>>.GetEnumerator() {
             return Dictionary.GetEnumerator();
         }
 
-        private static bool _CompareKeys(string a, string b) {
-            return string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
+        public bool TryGetValue(string key, out ValidationError value) {
+            return Dictionary.TryGetValue(key, out value);
         }
 
-        // IStatus implementation
-        public Exception Exception {
-            get {
-                if (this.list.Count == 0)
-                    return null;
-
-                StringBuilder message = new StringBuilder(SR.ValidationErrorsOccurred());
-
-                // TODO NLS implementation
-                foreach (var t in this.list.GroupBy(u => u.Key)) {
-                    message.AppendLine();
-                    message.Append(t.Key);
-                    message.Append(": ");
-
-                    foreach (var v in t) {
-                        message.Append(v.Message);
-                        message.Append(" ");
-                    }
-                }
-
-                return new ValidationException(message.ToString());
-            }
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
         }
 
-        // public FileLocation FileLocation {
-        //     get {
-        //         var leader = this.list.FirstOrDefault();
-        //         if (leader == null)
-        //             return FileLocation.Empty;
-        //         else
-        //             return leader.FileLocation;
-        //     }
-        // }
-
-        // Severity IStatus.Level {
-        //     get { return Severity.Error; } }
-
-        public string Message {
-            get {
-                var leader = this.list.FirstOrDefault();
-                if (leader == null)
-                    return string.Empty;
-                else
-                    return leader.Message;
-            }
+        public IEnumerator<ValidationError> GetEnumerator() {
+            return _items.GetEnumerator();
         }
-
-        // Component IStatus.Component {
-        //     get { return typeof(ValidationError).GetTypeInfo().Assembly.AsComponent(); }
-        // }
-
-        public int ErrorCode {
-            get {
-                var leader = this.list.FirstOrDefault();
-                if (leader == null)
-                    return 0;
-                else
-                    return leader.ErrorCode;
-            }
-        }
-
-        // ReadOnlyCollection<IStatus> IStatus.Children {
-        //     get {
-        //         return new ReadOnlyCollection<IStatus>(this.Dictionary.Values.ToArray());
-        //     }
-        // }
-
-        // public bool Equals(IStatus other) {
-        //     if (other == null)
-        //         return false;
-        //     ValidationErrors e = other as ValidationErrors;
-        //     if (e == null)
-        //         return false;
-
-        //     if (e.Count == this.Count)
-        //         return true;
-        //     else
-        //         return false;
-        // }
-
     }
 }

@@ -1,7 +1,5 @@
 //
-// - NonNegativeAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,14 +15,15 @@
 //
 
 using System;
+using Carbonfrost.Commons.Validation.Validators;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
-    public sealed class NonNegativeAttribute : CompareAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    public sealed class NonNegativeAttribute : ValidatorAttribute {
 
-        public NonNegativeAttribute()
-            : base(ComparisonOperator.GreaterThanEqual, ZeroValue) {
+        protected override Validator CreateValidatorCore() {
+            return new NonNegativeValidator();
         }
     }
 }

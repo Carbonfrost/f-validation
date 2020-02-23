@@ -17,14 +17,35 @@
 //
 
 using System;
-using System.Reflection;
 using Carbonfrost.Commons.Validation;
 using Carbonfrost.Commons.Validation.Validators;
 using Carbonfrost.Commons.Spec;
+using System.Collections.Generic;
 
 namespace Carbonfrost.UnitTests.Validation.Validators {
 
     public class RequiredValidatorTests {
+
+        public IEnumerable<object[]> EmptyValues {
+            get {
+                return new[] {
+                    new object[] { typeof(bool), false },
+                    new object[] { typeof(byte), (byte) 0 },
+                    new object[] { typeof(char), (char) 0 },
+                    new object[] { typeof(decimal), (decimal) 0m },
+                    new object[] { typeof(double), (double) 0 },
+                    new object[] { typeof(short), (short) 0 },
+                    new object[] { typeof(int), (int) 0 },
+                    new object[] { typeof(long), (long) 0 },
+                    new object[] { typeof(sbyte), (sbyte) 0 },
+                    new object[] { typeof(float), (float) 0 },
+                    new object[] { typeof(string), (string) "" },
+                    new object[] { typeof(ushort), (ushort) 0 },
+                    new object[] { typeof(uint), (uint) 0 },
+                    new object[] { typeof(ulong), (ulong) 0 },
+                };
+            }
+        }
 
         [Fact]
         public void boolean_should_be_true_for_required() {
@@ -71,5 +92,67 @@ namespace Carbonfrost.UnitTests.Validation.Validators {
             Assert.False(Validate.Required((object) value));
         }
 
+        [Theory]
+        [PropertyData(nameof(EmptyValues))]
+        public void IsValidImpl_applies_to_common_values(Type type, object value) {
+            Assert.False(
+                RequiredValidator.IsValidImpl(value, type)
+            );
+        }
+
+        [Fact]
+        public void IsValidImpl_applies_to_struct_with_natural_empty_value() {
+            var empty = PNaturalEmptyValue.Empty;
+            var notEmpty = new PNaturalEmptyValue();
+            Assert.True(RequiredValidator.IsValidImpl(notEmpty));
+            Assert.False(RequiredValidator.IsValidImpl(empty));
+        }
+
+        [Fact]
+        public void IsValidImpl_applies_to_struct_with_empty_value_test() {
+            var empty = new PHasEmptyValueTest { IsEmpty = true };
+            var notEmpty = new PHasEmptyValueTest();
+
+            Assert.True(RequiredValidator.IsValidImpl(notEmpty));
+            Assert.False(RequiredValidator.IsValidImpl(empty));
+        }
+
+        class PNaturalEmptyValue {
+            public static readonly PNaturalEmptyValue Empty = new PNaturalEmptyValue();
+            public int Value { get; set; }
+        }
+
+        struct PHasEmptyValueTest {
+            public bool IsEmpty {
+                get;
+                set;
+            }
+        }
+
+        [XFact(Reason = "Pending localization rules")]
+        public void DefaultFailureMessage_is_equal_loaded_from_resources() {
+            var req = new RequiredValidator();
+            Assert.Equal(
+                "${Key} is required",
+                req.DefaultFailureMessageTemplate.ToString()
+            );
+        }
+
+        [XFact(Reason = "Pending localization rules")]
+        public void FailureMessage_applies_default_message_format() {
+            var req = new RequiredValidator { Key = "First name" };
+            Assert.Equal(
+                "First name is required",
+                req.FailureMessage
+            );
+        }
+
+        [Fact]
+        public void Validate_generates_correct_key_and_validator() {
+            var req = new RequiredValidator { Key = "First name" };
+            var errors = req.Validate("");
+            Assert.Equal("First name", errors[0].Key);
+            Assert.Equal("required", errors[0].Validator);
+        }
     }
 }

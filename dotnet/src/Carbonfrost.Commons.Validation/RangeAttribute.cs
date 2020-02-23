@@ -22,65 +22,75 @@ using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
-    public class RangeAttribute : AbstractValidatorAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    public class RangeAttribute : ValidatorAttribute {
 
-        private readonly object minValue;
-        private readonly object maxValue;
+        private readonly object _minValue;
+        private readonly object _maxValue;
 
-        public object MinValue { get { return minValue; } }
-        public object MaxValue { get { return maxValue; } }
-        public bool LowerExclusive { get; set; }
-        public bool UpperExclusive { get; set; }
+        public object MinValue {
+            get {
+                return _minValue;
+            }
+        }
+
+        public object MaxValue {
+            get {
+                return _maxValue;
+            }
+        }
+
+        public bool MinExclusive { get; set; }
+        public bool MaxExclusive { get; set; }
 
         public RangeAttribute(int minValue, int maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(object minValue, object maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(double minValue, double maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(decimal minValue, decimal maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(float minValue, float maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(long minValue, long maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(string minValue, string maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(byte minValue, byte maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(char minValue, char maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(short minValue, short maxValue) {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public RangeAttribute(Type type, string minValue, string maxValue) {
@@ -88,34 +98,34 @@ namespace Carbonfrost.Commons.Validation {
                 throw new ArgumentNullException("type");
 
             if (maxValue != null) {
-                this.maxValue = Activation.FromText(type, maxValue);
+                _maxValue = Activation.FromText(type, maxValue);
             }
 
             if (minValue != null) {
-                this.minValue = Activation.FromText(type, minValue);
+                _minValue = Activation.FromText(type, minValue);
             }
         }
 
         protected override Validator CreateValidatorCore() {
-            return new RangeValidator(this.MinValue, this.MaxValue) {
-                UpperExclusive = UpperExclusive,
-                LowerExclusive = LowerExclusive,
+            return new RangeValidator(MinValue, MaxValue) {
+                MaxExclusive = MaxExclusive,
+                MinExclusive = MinExclusive,
             };
         }
 
         public sealed override object GetValueGeneratorMetadata(string property) {
             switch (property) {
                 case "MinValue":
-                    return this.MinValue;
+                    return MinValue;
 
                 case "MaxValue":
-                    return this.MaxValue;
+                    return MaxValue;
 
-                case "LowerExclusive":
-                    return this.LowerExclusive;
+                case "MinExclusive":
+                    return MinExclusive;
 
-                case "UpperExclusive":
-                    return this.UpperExclusive;
+                case "MaxExclusive":
+                    return this.MaxExclusive;
 
                 default:
                     return null;

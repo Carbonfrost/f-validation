@@ -1,13 +1,11 @@
 //
-// - SelfValidationAdapter.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,30 +14,23 @@
 // limitations under the License.
 //
 
-using System;
 using Carbonfrost.Commons.Core;
-using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
     internal sealed class SelfValidationAdapter : Validator {
 
-        public override string Name {
-            get { return ValidatorNames.Self; } }
-
-        public override KnownValidator KnownValidator {
-            get { return KnownValidator.Self; }
-        }
-
-        public override bool Validate(object target, ValidationErrors targetErrors) {
-            if (target == null)
-                return true;
+        public override ValidationErrors Validate(object target) {
+            if (target == null) {
+                return ValidationErrors.None;
+            }
 
             ISelfValidation s = target as ISelfValidation;
-            if (s == null)
-                throw Failure.NotInstanceOf("target", target.GetType(), typeof(ISelfValidation)); // $NON-NLS-1
+            if (s == null) {
+                throw Failure.NotInstanceOf("target", target.GetType(), typeof(ISelfValidation));
+            }
 
-            return s.Validate(targetErrors);
+            return s.Validate();
         }
     }
 }

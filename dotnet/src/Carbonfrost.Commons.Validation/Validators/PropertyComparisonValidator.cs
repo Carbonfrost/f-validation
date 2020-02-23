@@ -36,9 +36,6 @@ namespace Carbonfrost.Commons.Validation.Validators {
             this._operator = @operator;
         }
 
-        public override string Name {
-            get { return "propertyComparison"; } } // $NON-NLS-1
-
         public override bool IsValid(object value) {
             throw new NotImplementedException();
         }

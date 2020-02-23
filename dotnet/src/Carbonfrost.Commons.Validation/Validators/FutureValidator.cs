@@ -23,12 +23,6 @@ namespace Carbonfrost.Commons.Validation.Validators {
     [ValidatorUsage(Name = ValidatorNames.Future)]
     public class FutureValidator : ValueValidator<DateTime> {
 
-        public override string Name {
-            get {
-                return ValidatorNames.Future;
-            }
-        }
-
         public override bool IsValid(DateTime value) {
             return IsValidImpl(value);
         }

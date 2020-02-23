@@ -1,13 +1,11 @@
 //
-// - EachKeyValidatorAdapter.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +15,31 @@
 //
 
 using System;
+using System.Linq;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
-    internal sealed class EachKeyValidatorAdapter : ValidatorAdapter {
+    internal sealed class EachKeyValidatorAdapter : Validator {
 
-        public EachKeyValidatorAdapter(Validator validator) : base(validator) {
+        private readonly Validator _baseValidator;
+
+        public EachKeyValidatorAdapter(Validator validator) {
+            if (validator == null) {
+                throw new ArgumentNullException(nameof(validator));
+            }
+
+            _baseValidator = validator;
         }
 
-        protected override object GetValueForValidation(object target,
-                                                        out string accessFailureMessage) {
-            // TODO Support this key value adapter (particularly since we need it multiple times)
-            throw new NotImplementedException();
+        public override ValidationErrors Validate(object target) {
+            if (target == null) {
+                return ValidationErrors.None;
+            }
+
+            var values = ReflectionHelper.GetDictionaryKeys(target);
+            return ValidationErrors.Flatten(
+                values.Cast<object>().Select(v => _baseValidator.Validate(v))
+            );
         }
     }
 }

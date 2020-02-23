@@ -1,13 +1,11 @@
 //
-// - ValidationException.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,41 +23,40 @@ namespace Carbonfrost.Commons.Validation {
 
     public class ValidationException : Exception {
 
-        public string Key { get; private set; }
-        public string Validator { get; private set; }
-        public int ErrorCode { get; private set; }
+        public string Key {
+            get;
+            private set;
+        }
+
+        public string Validator {
+            get;
+            private set;
+        }
 
         public ValidationException() {}
         public ValidationException(string message) : base(message) {}
 
-        public ValidationException(string key, string validator, int errorCode, string message) : base(message) {
-            this.ErrorCode = errorCode;
-            this.Validator = validator;
-            this.Key = key;
+        public ValidationException(string key, string validator, string message) : base(message) {
+            Validator = validator;
+            Key = key;
         }
 
         public ValidationException(string message, Exception innerException) : base(message, innerException) {}
 
-#if NET
-
         protected ValidationException(SerializationInfo info, StreamingContext context) : base(info, context) {
             if (info != null) {
-                this.Validator = info.GetString("validator");
-                this.ErrorCode = info.GetInt32("errorCode");
-                this.Key = info.GetString("key");
+                Validator = info.GetString("validator");
+                Key = info.GetString("key");
             }
         }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context) {
             if (info != null) {
                 info.AddValue("validator", Validator);
-                info.AddValue("errorCode", ErrorCode);
                 info.AddValue("key", Key);
             }
 
             base.GetObjectData(info, context);
         }
-
-#endif
     }
 }

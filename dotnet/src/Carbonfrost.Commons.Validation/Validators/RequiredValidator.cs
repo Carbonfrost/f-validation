@@ -1,13 +1,11 @@
 //
-// - RequiredValidator.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +15,8 @@
 //
 
 using System;
-using System.Collections;
 using System.Reflection;
-
+using Carbonfrost.Commons.Core.Runtime;
 using Carbonfrost.Commons.Validation.Resources;
 
 namespace Carbonfrost.Commons.Validation.Validators {
@@ -27,13 +24,13 @@ namespace Carbonfrost.Commons.Validation.Validators {
     [ValidatorUsage(Name = ValidatorNames.Required)]
     public class RequiredValidator : ValueValidator {
 
-        public RequiredValidator() {
-            FailureMessage = SR.ValidatorRequiredMessage();
+        public override PropertyProviderFormat DefaultFailureMessageTemplate {
+            get {
+                return PropertyProviderFormat.Parse(string.IsNullOrEmpty(Key)
+                    ? SR.ValidatorRequiredMessage()
+                    : SR.ValidatorRequiredMessageWithKey());
+            }
         }
-
-        // `ValueValidator' overrides.
-        public override string Name {
-            get { return ValidatorNames.Required; } }
 
         public override bool IsValid(object value) {
             return IsValidImpl(value);
@@ -65,10 +62,9 @@ namespace Carbonfrost.Commons.Validation.Validators {
                 case TypeCode.DateTime:
                     return true;
 
-#if NET
                 case TypeCode.DBNull:
                     return false;
-#endif
+
                 case TypeCode.Decimal:
                     return ((decimal) value) != 0;
 
@@ -91,7 +87,7 @@ namespace Carbonfrost.Commons.Validation.Validators {
                     return ((sbyte) value) != 0;
 
                 case TypeCode.Single:
-					return Math.Abs(((float) value)) > 0.000001;
+                    return Math.Abs(((float) value)) > 0.000001;
 
                 case TypeCode.String:
                     return ((string) value).Trim().Length > 0;
@@ -114,28 +110,31 @@ namespace Carbonfrost.Commons.Validation.Validators {
         }
 
         private static bool IsValidWithNaturalDefault(object value, Type type) {
-            ICollection c = value as ICollection;
-            PropertyInfo propertyInfo = type.GetTypeInfo().GetProperty(
-                "IsEmpty", // $NON-NLS-1
-                typeof(bool), Type.EmptyTypes);
+            var propertyInfo = type.GetTypeInfo().GetProperty(
+                "IsEmpty",
+                typeof(bool), Type.EmptyTypes
+            );
             if (propertyInfo != null && propertyInfo.GetMethod != null && !propertyInfo.GetMethod.IsStatic) {
                 return !((bool) propertyInfo.GetValue(value, null));
             }
 
-            PropertyInfo propertyInfo0
-                = type.GetTypeInfo().GetProperty(
-                    "Empty", // $NON-NLS-1
-                    type, Type.EmptyTypes);
+            var propertyInfo0 = type.GetTypeInfo().GetProperty(
+                "Empty", type, Type.EmptyTypes
+            );
+            if (propertyInfo0 != null && propertyInfo0.GetMethod != null && propertyInfo0.GetMethod.IsStatic) {
+                return !object.Equals(propertyInfo0.GetValue(null, null), value);
+            }
 
-            if (propertyInfo0 != null && propertyInfo0.GetMethod != null && propertyInfo0.GetMethod.IsStatic)
-                return object.Equals(propertyInfo0.GetValue(null, null), value);
+            var emptyField = type.GetTypeInfo().GetField("Empty", BindingFlags.Static | BindingFlags.Public);
+            if (emptyField != null) {
+                return !object.Equals(emptyField.GetValue(null), value);
+            }
 
-            else
-                return true;
+            return true;
         }
 
         private static bool IsValidNullable(object value, Type type) {
-            PropertyInfo propertyInfo = type.GetTypeInfo().GetProperty("HasValue", typeof(bool), Type.EmptyTypes); // $NON-NLS-1
+            PropertyInfo propertyInfo = type.GetTypeInfo().GetProperty("HasValue", typeof(bool), Type.EmptyTypes);
             return (bool) propertyInfo.GetValue(value, null);
         }
     }

@@ -1,13 +1,11 @@
 //
-// - PropertyValidator.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,24 +20,28 @@ using Carbonfrost.Commons.Validation.Resources;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
-	public class PropertyValidator : MemberValidator {
+    public class PropertyValidator : MemberValidator {
 
-	    public PropertyInfo Property { get { return (PropertyInfo) Member; } }
+        public PropertyInfo Property {
+            get {
+                return (PropertyInfo) Member;
+            }
+        }
 
-	    public PropertyValidator(PropertyInfo property, Validator baseValidator)
-	        : base(property, baseValidator) {}
+        public PropertyValidator(PropertyInfo property, Validator baseValidator)
+            : base(property, baseValidator) {}
 
-	    // `MemberValidator' overrides.
-	    protected override object GetValueForValidation(object target, out string accessFailureMessage) {
-	        try {
-	            accessFailureMessage = null;
-	            return this.Property.GetValue(target, null);
+        protected override object GetValueForValidation(object target) {
+            try {
+                return Property.GetValue(target, null);
 
-	        } catch (Exception) {
-	            accessFailureMessage = SR.PropertyValueNotAccessible(Property.Name);
-	            return null;
-	        }
-	    }
+            } catch (Exception ex) {
+                throw new ValidationException(
+                    SR.PropertyValueNotAccessible(Property.Name),
+                    ex
+                );
+            }
+        }
 
-	}
+    }
 }

@@ -26,9 +26,6 @@ namespace Carbonfrost.Commons.Validation.Validators {
         public ConfirmValidator() {
         }
 
-        public override string Name {
-            get { return "confirm"; } } // $NON-NLS-1
-
         public override bool IsValid(object value) {
             throw new NotImplementedException();
         }

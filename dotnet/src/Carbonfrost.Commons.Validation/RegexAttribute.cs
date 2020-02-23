@@ -25,10 +25,10 @@ using Carbonfrost.Commons.Validation.Validators;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS,
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS,
                     AllowMultiple = true,
                     Inherited = true)]
-    public sealed class RegexAttribute : AbstractValidatorAttribute {
+    public sealed class RegexAttribute : ValidatorAttribute {
 
         public RegexOptions Options {  get;  set; }
         public string Pattern {  get;  set; }

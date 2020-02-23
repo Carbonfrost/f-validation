@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Carbonfrost.Commons.Validation</RootNamespace>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <Copyright>Copyright 2010-2019 Carbonfrost Systems, Inc.</Copyright>
+    <Copyright>Copyright 2010-2020 Carbonfrost Systems, Inc.</Copyright>
     <Authors>Carbonfrost</Authors>
     <Description>
       A framework for validation
