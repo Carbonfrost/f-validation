@@ -1,7 +1,5 @@
 //
-// - ValidatorTarget.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,13 +18,12 @@ using System;
 
 namespace Carbonfrost.Commons.Validation {
 
-	public enum ValidatorTarget {
-
-	    Value,
-	    AllKeys,
-	    AllValues,
-	    EachKey,
-	    EachValue,
-	    EachItem
-	}
+    public enum ValidatorTarget {
+        Value,
+        AllKeys,
+        AllValues,
+        EachKey,
+        EachValue,
+        EachKeyValuePair,
+    }
 }

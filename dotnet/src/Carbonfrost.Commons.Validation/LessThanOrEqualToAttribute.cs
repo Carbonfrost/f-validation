@@ -1,7 +1,5 @@
 //
-// - LessThanOrEqualToAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,25 +15,23 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace Carbonfrost.Commons.Validation {
 
-	[AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
-	public sealed class LessThanOrEqualToAttribute : CompareAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    public sealed class LessThanOrEqualToAttribute : CompareAttribute {
 
-	    public LessThanOrEqualToAttribute(int value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(object value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(double value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(decimal value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(float value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(long value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(string value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(byte value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(char value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(short value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public LessThanOrEqualToAttribute(Type type, string value) : base(ComparisonOperator.GreaterThan, type, value) {}
+        public LessThanOrEqualToAttribute(int value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(object value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(double value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(decimal value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(float value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(long value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(string value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(byte value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(char value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(short value) : base(ComparisonOperator.LessThanOrEqualTo, value) {}
+        public LessThanOrEqualToAttribute(Type type, string value) : base(ComparisonOperator.LessThanOrEqualTo, type, value) {}
 
-	}
+    }
 }

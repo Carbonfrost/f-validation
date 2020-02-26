@@ -1,7 +1,5 @@
 //
-// - NonZeroAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,15 +15,15 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
+using Carbonfrost.Commons.Validation.Validators;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
-    public sealed class NonZeroAttribute : CompareAttribute {
-        public NonZeroAttribute()
-            : base(ComparisonOperator.NotEqual, ZeroValue) {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    public sealed class NonZeroAttribute : ValidatorAttribute {
+
+        protected override Validator CreateValidatorCore() {
+            return new NonZeroValidator();
         }
     }
 }

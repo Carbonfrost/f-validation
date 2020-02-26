@@ -1,7 +1,5 @@
 //
-// - Validator.Static.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,6 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 using Carbonfrost.Commons.Core;
 using Carbonfrost.Commons.Core.Runtime;
 using Carbonfrost.Commons.Validation.Resources;
@@ -31,24 +30,50 @@ namespace Carbonfrost.Commons.Validation {
         private static readonly IDictionary<Type, ValidatorSequence> baseValidatorMap
             = new Dictionary<Type, ValidatorSequence>();
 
-        public static ValidatorSequence Compose(IEnumerable<Validator> validators) {
-            if (validators == null)
-                throw new ArgumentNullException("validators"); // $NON-NLS-1
-
-            ValidatorSequence vs = new ValidatorSequence();
-            vs.Validators.AddMany(validators);
-            return vs;
+        public static ValidatorSequence Compose(IEnumerable<Validator> items) {
+            return All(items);
         }
 
-        public static ValidatorSequence Compose(params Validator[] validators) {
-            if (validators == null)
-                throw new ArgumentNullException("validators"); // $NON-NLS-1
-
-            ValidatorSequence vs = new ValidatorSequence();
-            vs.Validators.AddMany(validators);
-            return vs;
+        [ValidatorUsage]
+        public static ValidatorSequence Compose(params Validator[] items) {
+            return All(items);
         }
 
+        public static ValidatorSequence All(IEnumerable<Validator> items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            return new ValidatorSequence(ValidatorSequenceKind.All, items);
+        }
+
+        [ValidatorUsage]
+        public static ValidatorSequence All(params Validator[] items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            return new ValidatorSequence(ValidatorSequenceKind.All, items);
+        }
+
+        [ValidatorUsage]
+        public static ValidatorSequence Any(IEnumerable<Validator> items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            return new ValidatorSequence(ValidatorSequenceKind.Any, items);
+        }
+
+        public static ValidatorSequence Any(params Validator[] items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            return new ValidatorSequence(ValidatorSequenceKind.Any, items);
+        }
+
+        [ValidatorUsage(Name = ValidatorNames.Self)]
         public static Validator CreateSelfValidator(Type instanceType) {
             if (instanceType == null)
                 throw new ArgumentNullException("instanceType"); // $NON-NLS-1
@@ -87,8 +112,8 @@ namespace Carbonfrost.Commons.Validation {
         }
 
         [ValidatorUsage(Name = ValidatorNames.Email)]
-        public static RegexValidator Email() {
-            return (RegexValidator) Create(KnownValidator.Email);
+        public static EmailValidator Email() {
+            return new EmailValidator();
         }
 
         [ValidatorUsage(Name = ValidatorNames.MaxLength)]
@@ -101,14 +126,18 @@ namespace Carbonfrost.Commons.Validation {
             return new LengthValidator { Min = min };
         }
 
+        public static Validator Parse(string text) {
+            return (Validator) Composable.Parse(typeof(Validator), text);
+        }
+
+        public static bool TryParse(string text, out Validator result) {
+            return Composable.TryParse(text, out result);
+        }
+
         // UNDONE Implement Validator Create methods
 
         public static Validator<T> Create<T>() {
             throw new NotImplementedException();
-        }
-
-        public static Validator<T> Create<T>(params string[] rulesets) {
-            return (Validator<T>) Create(typeof(T), rulesets);
         }
 
         public static ValidatorSequence Create(Type instanceType) {
@@ -118,26 +147,7 @@ namespace Carbonfrost.Commons.Validation {
             throw new NotImplementedException();
         }
 
-        public static Validator Create(Type instanceType, params string[] rulesets) {
-            if (instanceType == null)
-                throw new ArgumentNullException("instanceType"); // $NON-NLS-1
-
-            throw new NotImplementedException();
-        }
-
-        public static ValidatorSequence Filtered(ValidatorSequence validator, IEnumerable<string> rulesets) {
-            if (validator == null)
-                throw new ArgumentNullException("validator"); // $NON-NLS-1
-            if (rulesets == null)
-                throw new ArgumentNullException("rulesets"); // $NON-NLS-1
-            var s = new HashSet<string>(rulesets, StringComparer.OrdinalIgnoreCase);
-
-            if (s.Count == 0)
-                return validator;
-            else
-                return new RulesetFilteredValidatorSequence(validator, s);
-        }
-
+        [ValidatorUsage(Name = ValidatorNames.Known)]
         public static Validator Create(KnownValidator knownValidator) {
             switch (knownValidator) {
                 case KnownValidator.Required:
@@ -153,10 +163,25 @@ namespace Carbonfrost.Commons.Validation {
                     return new PropertyComparisonValidator();
 
                 case KnownValidator.Email:
-                    return new RegexValidator(RegularExpressions.EmailAddress, KnownValidator.Email);
+                    return new EmailValidator();
 
                 case KnownValidator.Regex:
                     return new RegexValidator();
+
+                case KnownValidator.Negative:
+                    return new NegativeValidator();
+
+                case KnownValidator.NonNegative:
+                    return new NonPositiveValidator();
+
+                case KnownValidator.Positive:
+                    return new PositiveValidator();
+
+                case KnownValidator.NonPositive:
+                    return new NonPositiveValidator();
+
+                case KnownValidator.NonZero:
+                    return new NonZeroValidator();
 
                 case KnownValidator.Self:
                     throw ValidationFailure.CannotCreateKnownValidatorThisWay("knownValidator");
@@ -177,8 +202,9 @@ namespace Carbonfrost.Commons.Validation {
         }
 
         public static Validator Redirect(Validator source, ValidatorTarget target) {
-            if (source == null)
-                throw new ArgumentNullException("source"); // $NON-NLS-1
+            if (source == null) {
+                throw new ArgumentNullException("source");
+            }
 
             switch (target) {
                 case ValidatorTarget.AllKeys:
@@ -193,8 +219,8 @@ namespace Carbonfrost.Commons.Validation {
                 case ValidatorTarget.EachValue:
                     return new EachValueValidatorAdapter(source);
 
-                case ValidatorTarget.EachItem:
-                    return new EachItemValidatorAdapter(source);
+                case ValidatorTarget.EachKeyValuePair:
+                    return new EachKeyValuePairValidatorAdapter(source);
 
                 case ValidatorTarget.Value:
                 default:
@@ -218,13 +244,10 @@ namespace Carbonfrost.Commons.Validation {
         }
 
         private static MemberValidator _CreateValidator(MemberInfo member) {
-            var validatorAttributes = member.GetCustomAttributes<AbstractValidatorAttribute>();
-
-            // Create the interior validators
-            ValidatorSequence validatorSequence = new ValidatorSequence();
-
-            foreach (AbstractValidatorAttribute ava in validatorAttributes)
-                validatorSequence.Validators.Add(ava.CreateValidator(member));
+            var attrs = member.GetCustomAttributes<ValidatorAttribute>();
+            var validatorSequence = ValidatorSequence.All(
+                attrs.Select(ava => ava.CreateValidator(member))
+            );
 
             switch (member.MemberType) {
                 case MemberTypes.Method:
@@ -242,6 +265,4 @@ namespace Carbonfrost.Commons.Validation {
             }
         }
     }
-
-
 }

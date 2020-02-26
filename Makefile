@@ -7,18 +7,11 @@ dotnet/generate:
 		--resx \
 		dotnet/src/Carbonfrost.Commons.Validation/Automation/SR.properties
 
-## Build the dotnet solution
-dotnet/build:
-	@ eval $(shell eng/build_env); \
-		dotnet build --configuration $(CONFIGURATION) ./dotnet
-
 ## Execute dotnet unit tests
 dotnet/test: dotnet/publish -dotnet/test
 
 -dotnet/test:
 	fspec -i dotnet/test/Carbonfrost.UnitTests.Validation/Content \
-		dotnet/test/Carbonfrost.UnitTests.Validation/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.Commons.Core.dll \
-		dotnet/test/Carbonfrost.UnitTests.Validation/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.Commons.Validation.dll \
 		dotnet/test/Carbonfrost.UnitTests.Validation/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Validation.dll
 
 ## Run unit tests with code coverage
@@ -34,4 +27,4 @@ dotnet/cover: dotnet/publish -check-command-coverlet
 		dotnet/test/Carbonfrost.UnitTests.Validation/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Validation.dll
 
 
-include eng/.mk/*.mk
+-include eng/.mk/*.mk

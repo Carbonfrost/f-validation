@@ -1,7 +1,5 @@
 //
-// - LessThanAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,25 +15,23 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
     public sealed class LessThanAttribute : CompareAttribute {
 
-        public LessThanAttribute(int value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(object value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(double value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(decimal value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(float value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(long value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(string value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(byte value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(char value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(short value) : base(ComparisonOperator.GreaterThan, value) {}
-        public LessThanAttribute(Type type, string value) : base(ComparisonOperator.GreaterThan, type, value) {}
+        public LessThanAttribute(int value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(object value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(double value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(decimal value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(float value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(long value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(string value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(byte value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(char value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(short value) : base(ComparisonOperator.LessThan, value) {}
+        public LessThanAttribute(Type type, string value) : base(ComparisonOperator.LessThan, type, value) {}
 
     }
 }

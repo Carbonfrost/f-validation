@@ -1,13 +1,11 @@
 //
-// - Validator.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,66 +15,43 @@
 //
 
 using System;
-using System.Collections.Generic;
 using Carbonfrost.Commons.Core.Runtime;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [Providers]
+    [Composable, Providers]
     public abstract partial class Validator {
 
-        private string failureMessageTemplate;
-        private HashSet<string> rulesets;
-        private bool failureMessageExplicit;
+        private string _failureMessage;
+        private bool _failureMessageExplicit;
 
         public string FailureMessage {
             get {
-                if (!failureMessageExplicit && string.IsNullOrEmpty(failureMessageTemplate))
-                    return Utility.GetDefaultFailureMessage(this);
+                if (!_failureMessageExplicit && string.IsNullOrEmpty(_failureMessage)) {
+                    return DefaultFailureMessageTemplate.Format(
+                        PropertyProvider.FromValue(this)
+                    );
+                }
 
-                return failureMessageTemplate;
+                return _failureMessage;
             }
             set {
-                failureMessageTemplate = value;
-                failureMessageExplicit = true;
+                _failureMessage = value;
+                _failureMessageExplicit = true;
             }
         }
 
-        public string Key { get; set; }
-
-        public virtual KnownValidator KnownValidator {
-            get { return KnownValidator.Unknown; } }
-
-        public bool Negate { get; set; }
-
-        public ICollection<string> Rulesets {
+        public virtual PropertyProviderFormat DefaultFailureMessageTemplate {
             get {
-                if (this.rulesets == null)
-                    this.rulesets = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                return rulesets;
+                throw new NotImplementedException();
             }
         }
 
-        public abstract string Name { get; }
-
-        protected internal virtual ValidationError CreateValidationError(string message, object target) {
-            return new ValidationError(
-                Key,
-                message ?? this.FormatFailureMessage(),
-                this.Name,
-                1);
+        public string Key {
+            get;
+            set;
         }
 
-        public virtual string FormatFailureMessage() {
-            return PropertyProvider.Format(this.FailureMessage, this);
-        }
-
-        public ValidationErrors Validate(object target) {
-            ValidationErrors vr = new ValidationErrors();
-            Validate(target, vr);
-            return vr;
-        }
-
-        public abstract bool Validate(object target, ValidationErrors targetErrors);
+        public abstract ValidationErrors Validate(object target);
     }
 }

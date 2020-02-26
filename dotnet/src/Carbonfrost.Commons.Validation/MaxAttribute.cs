@@ -24,7 +24,7 @@ using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = false, Inherited = true)]
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = false, Inherited = true)]
     public sealed class MaxAttribute : RangeAttribute {
 
         public MaxAttribute(int value) : base(Int32.MinValue, value) {}

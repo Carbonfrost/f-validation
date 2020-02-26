@@ -1,7 +1,5 @@
 //
-// - ValidationMetadataAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,8 +24,8 @@ namespace Carbonfrost.Commons.Validation {
 
         public Type ValidationMetadataType { get { return this.AdapterType; } }
 
-        public ValidationMetadataAttribute(Type validationMetadataType) : base(validationMetadataType, AdapterRole.ValidationMetadata) {}
-        public ValidationMetadataAttribute(string validationMetadataType) : base(validationMetadataType, AdapterRole.ValidationMetadata) {}
+        public ValidationMetadataAttribute(Type validationMetadataType) : base(validationMetadataType) {}
+        public ValidationMetadataAttribute(string validationMetadataType) : base(validationMetadataType) {}
 
     }
 }

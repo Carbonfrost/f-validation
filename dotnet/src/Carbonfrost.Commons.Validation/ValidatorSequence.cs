@@ -1,11 +1,11 @@
 //
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,68 +22,45 @@ namespace Carbonfrost.Commons.Validation {
 
     public class ValidatorSequence : Validator {
 
-        private readonly List<Validator> validators;
+        private readonly Validator[] _items;
 
-        public ValidatorSequenceKind Kind { get; set; }
-        public IList<Validator> Validators { get { return validators; } }
-
-        public ValidatorSequence() {
-            this.validators = new List<Validator>();
+        public ValidatorSequenceKind Kind {
+            get;
+            private set;
         }
 
-        internal ValidatorSequence(int capacity) {
-            this.validators = new List<Validator>(capacity);
+        public IReadOnlyList<Validator> Items {
+            get {
+                return _items;
+            }
         }
 
-        public ValidatorSequence Clone() {
-            return Clone(false);
+        public ValidatorSequence(ValidatorSequenceKind kind, IEnumerable<Validator> items) {
+            if (items == null) {
+                throw new ArgumentNullException(nameof(items));
+            }
+            Kind = kind;
+            _items = items.ToArray();
         }
 
-        public ValidatorSequence Clone(bool deep) {
-            ValidatorSequence vs = new ValidatorSequence();
-            vs.Kind = this.Kind;
+        public sealed override ValidationErrors Validate(object target) {
+            var results = new List<ValidationError>();
+            var items = Items.Select(c => c.Validate(target));
 
-            if (deep) {
-                foreach (Validator v in this.validators)
-                    vs.validators.Add(_TryClone(v));
-            } else
-                vs.validators.AddRange(this.validators);
+            Func<ValidationErrors, bool> predicate = errors => !errors.IsEmpty;
 
-            return vs;
-        }
+            bool error;
+            if (Kind == ValidatorSequenceKind.All) {
+                error = items.All(predicate);
+            } else {
+                error = items.Any(predicate);
+            }
 
-        protected virtual bool ValidateOverride(
-            Validator childValidator,
-            object target,
-            ValidationErrors targetErrors)  {
+            if (error) {
+                return ValidationErrors.Flatten(items);
+            }
 
-            if (childValidator == null)
-                throw new ArgumentNullException("childValidator"); // $NON-NLS-1
-
-            if (targetErrors == null)
-                throw new ArgumentNullException("targetErrors"); // $NON-NLS-1
-
-            return childValidator.Validate(target, targetErrors);
-        }
-
-        // `Validator' overrides.
-        public override string Name {
-            get { return ValidatorNames.Sequence; } } // $NON-NLS-1
-
-        public sealed override bool Validate(object target, ValidationErrors targetErrors) {
-            if (targetErrors == null)
-                throw new ArgumentNullException("targetErrors"); // $NON-NLS-1
-
-            // If we are looking for any, then we only expose the results of the one that worked
-            Func<Validator, bool> predicate = t => ValidateOverride(t, target, targetErrors);
-            if (this.Kind == ValidatorSequenceKind.All)
-                return this.Validators.All(predicate);
-            else
-                return this.Validators.Any(predicate);
-        }
-
-        private static Validator _TryClone(Validator v) {
-            return Utility.TryClone(v);
+            return ValidationErrors.None;
         }
     }
 }

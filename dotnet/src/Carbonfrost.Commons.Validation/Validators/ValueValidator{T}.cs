@@ -1,13 +1,11 @@
 //
-// - ValueValidator{T}.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,32 +14,27 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Validation.Validators {
 
     public abstract class ValueValidator<T> : Validator<T> {
 
-        const int ERROR_CODE = 1;
+        public virtual string Name {
+            get {
+                return Utility.GetValidatorName(this);
+            }
+        }
 
         public abstract bool IsValid(T value);
 
-        // `Validator' implementation.
-
-        public sealed override bool Validate(T target, ValidationErrors targetErrors) {
-            if (targetErrors == null)
-                throw new ArgumentNullException("targetErrors"); // $NON-NLS-1
-
+        public sealed override ValidationErrors Validate(T target) {
             bool result = IsValid(target);
             if (!result) {
-                string s = FormatFailureMessage();
-
-                ValidationError status = new ValidationError(
-                    null, s, this.Name, ERROR_CODE);
-                targetErrors.Add(status);
+                return new ValidationErrors(
+                    new ValidationError(Key, FailureMessage, Name)
+                );
             }
 
-            return result;
+            return ValidationErrors.None;
         }
 
     }

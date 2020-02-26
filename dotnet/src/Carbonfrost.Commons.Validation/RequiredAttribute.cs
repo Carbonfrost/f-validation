@@ -24,8 +24,8 @@ using Carbonfrost.Commons.Validation.Validators;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = false, Inherited = true)]
-    public sealed class RequiredAttribute : AbstractValidatorAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = false, Inherited = true)]
+    public sealed class RequiredAttribute : ValidatorAttribute {
 
         protected override Validator CreateValidatorCore() {
             return new RequiredValidator();

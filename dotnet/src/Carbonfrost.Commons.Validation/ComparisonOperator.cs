@@ -1,7 +1,5 @@
 //
-// - ComparisonOperator.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,16 +14,14 @@
 // limitations under the License.
 //
 
-using System;
-
 namespace Carbonfrost.Commons.Validation {
 
-	public enum ComparisonOperator {
-	    Equal,
-	    NotEqual,
-	    GreaterThan,
-	    GreaterThanEqual,
-	    LessThan,
-	    LessThanEqual
-	}
+    public enum ComparisonOperator {
+        Equal,
+        NotEqual,
+        GreaterThan,
+        GreaterThanOrEqualTo,
+        LessThan,
+        LessThanOrEqualTo,
+    }
 }

@@ -14,25 +14,8 @@
 // limitations under the License.
 //
 
-using Carbonfrost.Commons.Validation;
-using Carbonfrost.Commons.Spec;
-
 namespace Carbonfrost.UnitTests.Validation {
 
     public class ValidatorScenarios {
-
-        [Fact]
-        public void using_provider_pattern() {
-            Validator validator = Validator.FromName("email");
-            validator.Validate("me@example.com");
-        }
-
-        [Fact]
-        public void compose_validators() {
-            Validator validator = Validator.Compose(
-                Validator.Create(KnownValidator.Required),
-                Validator.Create(KnownValidator.Email));
-
-        }
     }
 }

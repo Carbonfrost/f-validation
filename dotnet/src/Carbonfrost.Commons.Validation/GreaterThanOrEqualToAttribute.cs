@@ -1,7 +1,5 @@
 //
-// - GreaterThanOrEqualToAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,25 +15,22 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace Carbonfrost.Commons.Validation {
 
-	[AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
-	public sealed class GreaterThanOrEqualToAttribute : CompareAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple = true, Inherited = true)]
+    public sealed class GreaterThanOrEqualToAttribute : CompareAttribute {
 
-	    public GreaterThanOrEqualToAttribute(int value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(object value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(double value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(decimal value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(float value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(long value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(string value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(byte value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(char value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(short value) : base(ComparisonOperator.GreaterThan, value) {}
-	    public GreaterThanOrEqualToAttribute(Type type, string value) : base(ComparisonOperator.GreaterThan, type, value) {}
-
-	}
+        public GreaterThanOrEqualToAttribute(int value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(object value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(double value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(decimal value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(float value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(long value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(string value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(byte value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(char value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(short value) : base(ComparisonOperator.GreaterThanOrEqualTo, value) {}
+        public GreaterThanOrEqualToAttribute(Type type, string value) : base(ComparisonOperator.GreaterThanOrEqualTo, type, value) {}
+    }
 }

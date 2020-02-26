@@ -1,7 +1,5 @@
 //
-// - CompareToAttribute.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,21 +15,27 @@
 //
 
 using System;
-using System.ComponentModel;
-using System.Reflection;
 
 using Carbonfrost.Commons.Validation.Validators;
 using Carbonfrost.Commons.Core;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS, AllowMultiple=false, Inherited=true)]
-    public sealed class CompareToAttribute : AbstractValidatorAttribute {
+    [AttributeUsage(ValidatorAttribute.COMMON_TARGETS, AllowMultiple=false, Inherited=true)]
+    public sealed class CompareToAttribute : ValidatorAttribute {
 
-        private readonly string otherProperty;
+        private readonly string _otherProperty;
 
-        public ComparisonOperator ComparisonOperator { get; set; }
-        public string PropertyName { get { return otherProperty; } }
+        public ComparisonOperator ComparisonOperator {
+            get;
+            set;
+        }
+
+        public string PropertyName {
+            get {
+                return _otherProperty;
+            }
+        }
 
         public CompareToAttribute(string propertyName) {
             if (propertyName == null)
@@ -40,12 +44,12 @@ namespace Carbonfrost.Commons.Validation {
             if (propertyName.Trim().Length == 0)
                 throw Failure.EmptyString("propertyName"); // $NON-NLS-1
 
-            this.otherProperty = propertyName;
+            _otherProperty = propertyName;
         }
 
         protected override Validator CreateValidatorCore() {
-            return new PropertyComparisonValidator(this.otherProperty,
-                                                   this.ComparisonOperator);
+            return new PropertyComparisonValidator(_otherProperty,
+                                                   ComparisonOperator);
         }
 
     }

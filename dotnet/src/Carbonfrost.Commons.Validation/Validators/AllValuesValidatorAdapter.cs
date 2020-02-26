@@ -1,13 +1,11 @@
 //
-// - AllValuesValidatorAdapter.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,19 +18,27 @@ using System;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
-    internal sealed class AllValuesValidatorAdapter : ValidatorAdapter {
+    internal sealed class AllValuesValidatorAdapter : Validator {
 
-        public AllValuesValidatorAdapter(Validator validator) : base(validator) {
+        private readonly Validator _baseValidator;
+
+        public AllValuesValidatorAdapter(Validator baseValidator) {
+            _baseValidator = baseValidator;
         }
 
-        public override bool Validate(object target, ValidationErrors targetErrors) {
-            throw new NotImplementedException();
+        public sealed override ValidationErrors Validate(object target) {
+            _baseValidator.Key = Key;
+            _baseValidator.FailureMessage = FailureMessage;
+            object value = GetValueForValidation(target);
+            return _baseValidator.Validate(value);
         }
 
-        // TODO Maybe a better tag name here?
-
-        protected override object GetValueForValidation(object target, out string accessFailureMessage) {
-            throw new NotImplementedException();
+        private object GetValueForValidation(object target) {
+            if (target == null) {
+                return null;
+            }
+            return ReflectionHelper.GetDictionaryValues(target);
         }
     }
 }
+

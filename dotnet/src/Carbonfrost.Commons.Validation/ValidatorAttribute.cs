@@ -1,11 +1,11 @@
-//
-// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+﻿//
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (https://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//     https://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,50 +15,58 @@
 //
 
 using System;
-using System.Collections.Generic;
-using Carbonfrost.Commons.Core.Runtime;
+using System.Reflection;
 
 namespace Carbonfrost.Commons.Validation {
 
-    [AttributeUsage(AbstractValidatorAttribute.COMMON_TARGETS,
-                    AllowMultiple = true, Inherited = true)]
-    public sealed class ValidatorAttribute : AbstractValidatorAttribute {
+    public abstract class ValidatorAttribute : Attribute {
 
-        private readonly Type _validatorType;
+        // UNDONE Could provide IValueGeneratorMetadataProvider
 
-        public string Properties {
+        internal const AttributeTargets COMMON_TARGETS = (
+            AttributeTargets.Parameter
+            | AttributeTargets.Interface
+            | AttributeTargets.Field
+            | AttributeTargets.Property
+            | AttributeTargets.Method
+            | AttributeTargets.Struct
+            | AttributeTargets.Class
+        );
+
+        public string FailureMessage {
             get;
             set;
         }
 
-        public Type ValidatorType {
-            get {
-                return _validatorType;
-            }
+        public string Key {
+            get;
+            set;
         }
 
-        public ValidatorAttribute(string validatorType) {
-            _validatorType = Type.GetType(validatorType, true, false);
+        public ValidatorTarget Target {
+            get;
+            set;
         }
 
-        public ValidatorAttribute(Type validatorType) {
-            if (validatorType == null)
-                throw new ArgumentNullException("validatorType"); // $NON-NLS-1
-            _validatorType = validatorType;
+        protected ValidatorAttribute() {}
+
+        internal Validator CreateValidator(MemberInfo member) {
+            return CreateValidator(member.Name);
         }
 
-        protected override Validator CreateValidatorCore() {
-            Validator result = Activation.CreateInstance<Validator>(ValidatorType);
-            Activation.Initialize(result, ParseProperties(Properties), null);
-
-            // UNDONE It is possible that there are properties specified that don't exist
-            // e.g throw ValidationFailure.CannotUseMissingOrErrorProperties(string.Join(", ", badProperties.ToArray()));
-
-            return result;
+        internal Validator CreateValidator(string key) {
+            Validator v = Validator.Redirect(
+                CreateValidatorCore(), Target
+            );
+            v.Key = string.IsNullOrWhiteSpace(Key) ? key : Key;
+            v.FailureMessage = FailureMessage;
+            return v;
         }
 
-        private static IEnumerable<KeyValuePair<string, object>> ParseProperties(string props) {
-            return Carbonfrost.Commons.Core.Runtime.Properties.Parse(props);
+        protected abstract Validator CreateValidatorCore();
+
+        public virtual object GetValueGeneratorMetadata(string property) {
+            return null;
         }
     }
 }

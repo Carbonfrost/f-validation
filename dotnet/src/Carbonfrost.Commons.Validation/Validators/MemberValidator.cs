@@ -1,7 +1,5 @@
 //
-// - MemberValidator.cs -
-//
-// Copyright 2010 Carbonfrost Systems, Inc. (http://carbonfrost.com)
+// Copyright 2010, 2020 Carbonfrost Systems, Inc. (http://carbonfrost.com)
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,24 +19,43 @@ using System.Reflection;
 
 namespace Carbonfrost.Commons.Validation.Validators {
 
-    public abstract class MemberValidator : ValidatorAdapter {
+    public abstract class MemberValidator : Validator {
 
-        private readonly MemberInfo memberInfo;
+        private readonly Validator _baseValidator;
+        private readonly MemberInfo _memberInfo;
 
-        public MemberInfo Member { get { return memberInfo; } }
-
-        // Constructors.
-
-        protected MemberValidator(MemberInfo memberInfo, Validator baseValidator) : base(baseValidator) {
-            if (memberInfo == null)
-                throw new ArgumentNullException("memberInfo"); // $NON-NLS-1
-
-            this.memberInfo = memberInfo;
+        public MemberInfo Member {
+            get {
+                return _memberInfo;
+            }
         }
 
-        // `Validator' overrides.
-        public override string Name {
-            get { return BaseValidator.Name; } }
+        public Validator BaseValidator {
+            get {
+                return _baseValidator;
+            }
+        }
 
+        protected MemberValidator(MemberInfo memberInfo, Validator baseValidator) {
+            if (memberInfo == null) {
+                throw new ArgumentNullException("memberInfo"); // $NON-NLS-1
+            }
+            if (baseValidator == null) {
+                throw new ArgumentNullException(nameof(baseValidator));
+            }
+            _baseValidator = baseValidator;
+            _memberInfo = memberInfo;
+        }
+
+        public sealed override ValidationErrors Validate(object target) {
+            object value = GetValueForValidation(target);
+            BaseValidator.Key = Key;
+            BaseValidator.FailureMessage = FailureMessage;
+            return BaseValidator.Validate(value);
+        }
+
+        protected abstract object GetValueForValidation(
+            object target
+        );
     }
 }
