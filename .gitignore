@@ -2,3 +2,4 @@ dotnet/*/*/obj
 dotnet/*/*/bin
 paket-files
 lcov.*
+.fspec/results.json
