@@ -1,5 +1,7 @@
 .PHONY: dotnet/generate dotnet/test
 
+-include eng/Makefile
+
 ## Generate generated code
 dotnet/generate:
 	srgen -c Carbonfrost.Commons.Validation.Resources.SR \
@@ -27,4 +29,3 @@ dotnet/cover: dotnet/publish -check-command-coverlet
 		dotnet/test/Carbonfrost.UnitTests.Validation/bin/$(CONFIGURATION)/netcoreapp3.0/publish/Carbonfrost.UnitTests.Validation.dll
 
 
--include eng/.mk/*.mk
